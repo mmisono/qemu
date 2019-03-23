@@ -40,14 +40,13 @@ struct hax_state {
     bool supports_64bit_ramblock;
 };
 
-#define HAX_MAX_VCPU 0x10
 #define MAX_VM_ID 0x40
 #define MAX_VCPU_ID 0x40
 
 struct hax_vm {
     hax_fd fd;
     int id;
-    struct hax_vcpu_state *vcpus[HAX_MAX_VCPU];
+    struct hax_vcpu_state **vcpus;
 };
 
 #ifdef NEED_CPU_H

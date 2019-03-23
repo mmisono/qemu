@@ -245,6 +245,7 @@ struct hax_vm *hax_vm_create(struct hax_state *hax)
     }
 
     vm = g_new0(struct hax_vm, 1);
+    vm->vcpus = g_new0(struct hax_vcpu_state*, max_cpus);
 
     ret = hax_host_create_vm(hax, &vm_id);
     if (ret) {
@@ -262,6 +263,7 @@ struct hax_vm *hax_vm_create(struct hax_state *hax)
     return vm;
 
   error:
+    g_free(vm->vcpus);
     g_free(vm);
     hax->vm = NULL;
     return NULL;
@@ -271,12 +273,13 @@ int hax_vm_destroy(struct hax_vm *vm)
 {
     int i;
 
-    for (i = 0; i < HAX_MAX_VCPU; i++)
+    for (i = 0; i < max_cpus; i++)
         if (vm->vcpus[i]) {
             fprintf(stderr, "VCPU should be cleaned before vm clean\n");
             return -1;
         }
     hax_close_fd(vm->fd);
+    g_free(vm->vcpus);
     g_free(vm);
     hax_global.vm = NULL;
     return 0;
